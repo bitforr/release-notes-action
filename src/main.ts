@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2025 Yale University
 // SPDX-License-Identifier: Apache-2.0
 
+import assert from 'node:assert';
 import fs from 'node:fs/promises';
 import { PathLike } from 'node:fs';
 import * as readline from 'node:readline/promises';
@@ -91,6 +92,13 @@ export async function process(context: ActionContext): Promise<void> {
   if (!context.filter) {
     context.filter = new FilterConfig();
   }
+
+  // Check input parameters...
+  assert(context.filter.heading.prefix, 'Heading prefix is invalid!');
+  assert(context.filter.heading.suffix, 'Heading suffix is invalid!');
+  assert(context.paths.changelog, 'Changelog file is invalid!');
+  assert(context.paths.notes, 'Release notes file is invalid!');
+  assert(context.version, 'Release version is invalid!');
 
   // Extract release notes from changelog...
   const lines = await extract(context.paths.changelog, context.version, context.filter);
