@@ -97,7 +97,6 @@ export async function process(context: ActionContext): Promise<void> {
   assert(context.filter.heading.prefix, 'Heading prefix is invalid!');
   assert(context.filter.heading.suffix, 'Heading suffix is invalid!');
   assert(context.paths.changelog, 'Changelog file is invalid!');
-  assert(context.paths.notes, 'Release notes file is invalid!');
   assert(context.version, 'Release version is invalid!');
 
   // Extract release notes from changelog...
@@ -107,8 +106,18 @@ export async function process(context: ActionContext): Promise<void> {
     throw new Error(`No release notes found for version "${context.version}"!`);
   }
 
+  core.info('');
+
   // Output computed results...
-  await fs.writeFile(context.paths.notes, notes, { encoding: TEXT_ENCODING });
+
+  if (context.paths.notes) {
+    core.info(`Writing release notes to "${context.paths.notes.toString()}":`);
+    await fs.writeFile(context.paths.notes, notes, { encoding: TEXT_ENCODING });
+    core.info(`-> ${notes.length} byte(s) written`);
+  }
+  else {
+    core.warning('Skipped writing release notes. No output file specified!');
+  }
 }
 
 /** The main function for the action. */
