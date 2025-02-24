@@ -121,6 +121,21 @@ export async function main(): Promise<void> {
     },
   };
 
+  // Initialize optional input parameters...
+  {
+    context.filter = new FilterConfig();
+
+    const releaseHeadingPrefix = core.getInput(InputName.RELEASE_HEADING_PREFIX);
+    if (releaseHeadingPrefix) {
+      context.filter.heading.prefix = releaseHeadingPrefix;
+    }
+
+    const releaseHeadingSuffix = core.getInput(InputName.RELEASE_HEADING_SUFFIX);
+    if (releaseHeadingSuffix) {
+      context.filter.heading.suffix = releaseHeadingSuffix;
+    }
+  }
+
   core.info(`Processing changelog "${context.paths.changelog.toString()}"...`);
   try {
     await process(context);

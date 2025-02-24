@@ -12,4 +12,6 @@ export enum InputName {
   CHANGELOG_FILE = 'changelog-file',
   RELEASE_NOTES_FILE = 'release-notes-file',
   RELEASE_VERSION = 'release-version',
+  RELEASE_HEADING_PREFIX = 'release-heading-prefix',
+  RELEASE_HEADING_SUFFIX = 'release-heading-suffix',
 };
