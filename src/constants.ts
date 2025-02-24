@@ -15,3 +15,8 @@ export enum InputName {
   RELEASE_HEADING_PREFIX = 'release-heading-prefix',
   RELEASE_HEADING_SUFFIX = 'release-heading-suffix',
 };
+
+/** Action's output name */
+export enum OutputName {
+  RELEASE_NOTES = 'release-notes',
+};

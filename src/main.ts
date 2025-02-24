@@ -6,7 +6,7 @@ import fs from 'node:fs/promises';
 import { PathLike } from 'node:fs';
 import * as readline from 'node:readline/promises';
 import * as core from '@actions/core';
-import { RELEASE_HEADING_PREFIX, RELEASE_HEADING_SUFFIX, InputName } from './constants.js'
+import { RELEASE_HEADING_PREFIX, RELEASE_HEADING_SUFFIX, InputName, OutputName } from './constants.js'
 
 const TEXT_ENCODING = 'utf8';
 
@@ -109,6 +109,8 @@ export async function process(context: ActionContext): Promise<void> {
   core.info('');
 
   // Output computed results...
+
+  core.setOutput(OutputName.RELEASE_NOTES, notes);
 
   if (context.paths.notes) {
     core.info(`Writing release notes to "${context.paths.notes.toString()}":`);
