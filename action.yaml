@@ -1,0 +1,28 @@
+name: 'release-notes-action'
+description: |
+  Action for extracting release notes from changelog files.
+branding:
+  icon: file-text
+  color: blue
+inputs:
+  changelog-file:
+    description: 'Changelog file to extract release notes from'
+    required: true
+  release-version:
+    description: 'Version of the target release'
+    required: true
+  release-notes-file:
+    description: 'File to write extracted release notes to'
+    required: false
+  release-heading-prefix:
+    description: 'Regular expression used for detecting release headings'
+    required: false
+  release-heading-suffix:
+    description: 'Regular expression used for detecting release headings'
+    required: false
+outputs:
+  release-notes:
+    description: 'Extracted release notes'
+runs:
+  using: 'node20'
+  main: './dist/index.js'
