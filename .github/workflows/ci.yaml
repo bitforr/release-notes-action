@@ -15,6 +15,8 @@ permissions:
 
 env:
   CLICOLOR: 1
+  PNPM_VERSION: 10
+  NODE_VERSION: 20
 
 jobs:
   typos:
@@ -29,3 +31,22 @@ jobs:
       env:
         RUST_BACKTRACE: 1
         CARGO_TERM_COLOR: always
+
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v4
+    - name: Set up pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: ${{ env.PNPM_VERSION }}
+    - name: Set up Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: pnpm
+    - name: Install dependencies
+      run: pnpm install
+    - name: Run unit-tests
+      run: pnpm run test
