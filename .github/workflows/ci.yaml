@@ -3,6 +3,8 @@ on:
   push:
     branches:
     - main
+    tags:
+    - v*
   pull_request:
     branches:
     - main
@@ -50,3 +52,39 @@ jobs:
       run: pnpm install
     - name: Run unit-tests
       run: pnpm run test
+
+  bundle:
+    runs-on: ubuntu-latest
+    needs:
+    - typos
+    - tests
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v4
+    - name: Set up pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: ${{ env.PNPM_VERSION }}
+    - name: Set up Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: pnpm
+    - name: Install dependencies
+      run: pnpm install
+    - name: Clean up bundle
+      run: pnpm run clean
+    - name: Build and bundle code
+      run: pnpm run build
+    - name: Check committed bundle
+      run: |
+        diffs="$(git diff --ignore-space-at-eol --text ./dist/)"
+        if [ -f "./dist/index.js" -a -z "$diffs" ]; then
+            echo "Committed bundle is up-to-date!"
+            exit 0
+        fi
+
+        echo "Committed bundle is not up-to-date!"
+        echo ""
+        echo "$diffs"
+        exit 1
