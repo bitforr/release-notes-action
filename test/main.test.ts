@@ -23,6 +23,16 @@ const VERSIONS = [
   'v0.5.0',
 ];
 
+const MISSING_VERSIONS = [
+  'v25',
+  'v2.5',
+  'v2.0.0',
+  'v1.55',
+  'v1.5.55',
+  'v1',
+  '0.5',
+];
+
 const CHANGELOGS = [
   Changelog.create('changelog-01.md', VERSIONS, new FormatterV1()),
   Changelog.create('changelog-02.md', VERSIONS, new FormatterV2()),
@@ -89,6 +99,48 @@ describe('check release notes (+)', () => {
     const release = data.changelog.findRelease(params.version);
     const outputs = expect(core.setOutput);
     outputs.toHaveBeenCalledWith(OutputName.RELEASE_NOTES, release?.notes);
+  });
+});
+
+describe('check release notes (-)', () => {
+  const TESTCASES: TestData[] = [];
+  for (const c of CHANGELOGS) {
+    for (const v of MISSING_VERSIONS) {
+      const data: TestData = {
+        changelog: c,
+        version: v,
+      };
+
+      TESTCASES.push(data);
+    }
+  }
+
+  test.fails.each(TESTCASES)('for $version from $changelog.name', async (data) => {
+    const params = {
+      version: data.version,
+      paths: {
+        changelog: `${WORKDIR}/changelog.md`,
+      },
+    };
+
+    // Mock input parameters
+    const inputs = vi.mocked(core.getInput);
+    inputs.mockImplementation((name) => {
+      switch (name) {
+        case InputName.CHANGELOG_FILE:
+          return params.paths.changelog;
+        case InputName.RELEASE_VERSION:
+          return params.version;
+        default:
+          return '';
+      }
+    });
+
+    // Prepare input data
+    fs.writeFileSync(params.paths.changelog, data.changelog.render());
+
+    // Run action
+    await main();
   });
 });
 
