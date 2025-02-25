@@ -91,3 +91,58 @@ describe('check release notes (+)', () => {
     outputs.toHaveBeenCalledWith(OutputName.RELEASE_NOTES, release?.notes);
   });
 });
+
+describe('extract release notes (+)', () => {
+  const TESTCASES: TestData[] = [];
+  for (const c of CHANGELOGS) {
+    for (const v of VERSIONS) {
+      const data: TestData = {
+        changelog: c,
+        version: v,
+      };
+
+      TESTCASES.push(data);
+    }
+  }
+
+  test.each(TESTCASES)('for $version from $changelog.name', async (data) => {
+    const params = {
+      version: data.version,
+      paths: {
+        changelog: `${WORKDIR}/changelog.md`,
+        notes: `${WORKDIR}/release-notes.md`,
+      },
+    };
+
+    // Mock input parameters
+    const inputs = vi.mocked(core.getInput);
+    inputs.mockImplementation((name) => {
+      switch (name) {
+        case InputName.CHANGELOG_FILE:
+          return params.paths.changelog;
+        case InputName.RELEASE_NOTES_FILE:
+          return params.paths.notes;
+        case InputName.RELEASE_VERSION:
+          return params.version;
+        default:
+          return '';
+      }
+    });
+
+    // Prepare input data
+    fs.writeFileSync(params.paths.changelog, data.changelog.render());
+
+    // Run action
+    await main();
+
+    // Check output parameters
+    const release = data.changelog.findRelease(params.version);
+    const outputs = expect(core.setOutput);
+    outputs.toHaveBeenCalledWith(OutputName.RELEASE_NOTES, release?.notes);
+
+    // Check output data
+    expect(fs.existsSync(params.paths.notes)).toBeTruthy();
+    const notes = fs.readFileSync(params.paths.notes).toString();
+    expect(notes).toEqual(release?.notes);
+  });
+});
